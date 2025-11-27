@@ -25,7 +25,7 @@ for generation in range(generation_num):
     elite_population = population[:int(len(population)*elite_ratio)]
     next_population += elite_population
 
-    while next_population < population_size:
+    while len(next_population) < population_size:
         #トーナメント選択
         assert all(score >= 0 for _, score in population)
         selected = tournament_selection(population, k=tournament_k)
@@ -48,10 +48,10 @@ for generation in range(generation_num):
                 next_population.append((child2, child2_score))
         elif evolution_type == LAMARCK:
             child1, child1_score = local_opt(child1, sequence)
-            if not detect_lethal(child1_repr):
+            if not detect_lethal(child1):
                 next_population.append((child1, child1_score))        
             child2, child2_score = local_opt(child2, sequence)
-            if not detect_lethal(child2_repr):
+            if not detect_lethal(child2):
                 next_population.append((child2, child2_score))        
     population = next_population
     
