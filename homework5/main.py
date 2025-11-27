@@ -17,6 +17,8 @@ sequence = sequence1
 
 population = initial_population
 for generation in range(generation_num):
+    # 現世代の個体をスコア順に整列してからエリートを選択する
+    population = sorted(population, key=lambda x: x[1], reverse=True)
     next_population = []
 
     assert len(population) == population_size
@@ -30,7 +32,7 @@ for generation in range(generation_num):
         assert all(score >= 0 for _, score in population)
         selected = tournament_selection(population, k=tournament_k)
         # crossover
-        child1, child2 = crossover(selected[0], selected[1])
+        child1, child2 = crossover(selected[0][0], selected[1][0])
         # local search
         if evolution_type == DARWIN:
             if not detect_lethal(child1):
@@ -53,6 +55,8 @@ for generation in range(generation_num):
             child2, child2_score = local_opt(child2, sequence)
             if not detect_lethal(child2):
                 next_population.append((child2, child2_score))        
-    population = next_population
+    # 個体数が過剰になった場合はスコア順に切り詰める
+    next_population = sorted(next_population, key=lambda x: x[1], reverse=True)
+    population = next_population[:population_size]
     
 print(population[0])
