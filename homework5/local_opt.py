@@ -1,8 +1,6 @@
-from HP_model import score, pos, detect_lethal
+from utils import *
 import random
 import math
-
-#sequenceじゃなくてposに対してやらなければいけなかった!
 
 def find_best_neighbour(candidate, sequence):
     now = score(candidate, sequence)
@@ -15,8 +13,7 @@ def find_best_neighbour(candidate, sequence):
                 continue
             neighbour = candidate.copy()
             neighbour[i] = j
-            neighbour_pos = pos(neighbour)
-            if detect_lethal(neighbour_pos):
+            if detect_lethal(neighbour):
                 continue
             a = score(neighbour, sequence)
             if best < a:
@@ -31,7 +28,12 @@ def local_opt(candidate, sequence): #山登り法
         if next_candidate is None:
             break
         candidate = next_candidate
-    return candidate, score(candidate, sequence)
+    if detect_lethal(candidate):
+        candidate_score = -math.inf
+    else:
+        candidate_score = score(candidate, sequence)
+
+    return candidate, candidate_score
 
 def random_neighbour(candidate):
     neighbour = candidate.copy()
@@ -51,8 +53,7 @@ def simulated_annealing(candidate, sequence, step=100000, T0=1.0, Tmin=0.1, alph
     T = T0
     for step_num in range(step):
         new_neighbour = random_neighbour(candidate)
-        new_neighbour_pos = pos(new_neighbour)
-        if detect_lethal(new_neighbour_pos):
+        if detect_lethal(new_neighbour):
             continue
         new_v = score(new_neighbour, sequence)
         delta = v - new_v
@@ -69,7 +70,3 @@ def simulated_annealing(candidate, sequence, step=100000, T0=1.0, Tmin=0.1, alph
             print(f"Step {step_num}: T={T:.3f}, v={v:.3f}")
     
     return best_candid, best_v
-
-
-
-# 焼きなまし法も加える

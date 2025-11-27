@@ -1,0 +1,3 @@
+DARWIN = 0
+BALDWIN = 1
+LAMARCK = 2
