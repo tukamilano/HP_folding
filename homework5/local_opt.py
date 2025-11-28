@@ -3,7 +3,10 @@ import random
 import math
 
 def find_best_neighbour(candidate, sequence):
-    now = score(candidate, sequence)
+    if not detect_lethal(candidate):
+        now = score(candidate, sequence)
+    else:
+        now = -math.inf
     best = now
     best_neighbour = None
 

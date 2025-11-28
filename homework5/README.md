@@ -1,3 +1,0 @@
-# HP_folding
-
-書くべきことは最初の世代とcrossover時にlocal searchを考えた結果を使うということ.

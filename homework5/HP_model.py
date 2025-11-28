@@ -1,5 +1,4 @@
 import random
-import math
 from utils import *
 from parameter import *
 from local_opt import local_opt
@@ -18,8 +17,12 @@ def tournament_selection(population, k=3, winner_count=2):
 
 def generate_initial_population(sequence, population_size, evolution_type):
     initial_population = []
+    seen = set()
     while len(initial_population) < population_size:
         candidate = [random.choice([-1, 0, 1]) for _ in range(len(sequence)-1)]
+        candidate_key = tuple(candidate)
+        if candidate_key in seen:
+            continue
         if evolution_type == DARWIN:
             if detect_lethal(candidate):
                 continue
@@ -34,7 +37,9 @@ def generate_initial_population(sequence, population_size, evolution_type):
                 continue
         else:
             raise Exception("wrong evolution type")
+        
         initial_population.append((candidate, candidate_score))
+        seen.add(candidate_key)
     
     initial_population.sort(key=lambda x: x[1], reverse=True)
 
