@@ -27,6 +27,16 @@ def run_ga(evolution_type):
         evolution_type=evolution_type,
     )
     best_scores = []
+    local_cache = {}
+
+    def cached_local_opt(candidate):
+        key = tuple(candidate)
+        if key in local_cache:
+            cached_repr, cached_score = local_cache[key]
+            return list(cached_repr), cached_score
+        optimized_candidate, optimized_score = local_opt(candidate, sequence)
+        local_cache[key] = (tuple(optimized_candidate), optimized_score)
+        return optimized_candidate, optimized_score
 
     for _ in tqdm(range(generation_num), desc="Generations", leave=False):
         population = sorted(population, key=lambda x: x[1], reverse=True)
@@ -57,26 +67,26 @@ def run_ga(evolution_type):
                     next_population.append((child2, child2_score))
                     seen_candidates.add(child2_key)
             elif evolution_type == BALDWIN:
-                child1_repr, child1_score = local_opt(child1, sequence)
+                child1_repr, child1_score = cached_local_opt(child1)
                 child1_key = tuple(child1)
                 if child1_key not in seen_candidates and not detect_lethal(child1_repr):
                     next_population.append((child1, child1_score))
                     seen_candidates.add(child1_key)
-                child2_repr, child2_score = local_opt(child2, sequence)
+                child2_repr, child2_score = cached_local_opt(child2)
                 child2_key = tuple(child2)
                 if child2_key not in seen_candidates and not detect_lethal(child2_repr):
                     next_population.append((child2, child2_score))
                     seen_candidates.add(child2_key)
             elif evolution_type == LAMARCK:
-                child1, child1_score = local_opt(child1, sequence)
-                child1_key = tuple(child1)
-                if child1_key not in seen_candidates and not detect_lethal(child1):
-                    next_population.append((child1, child1_score))
+                child1_opt, child1_score = cached_local_opt(child1)
+                child1_key = tuple(child1_opt)
+                if child1_key not in seen_candidates and not detect_lethal(child1_opt):
+                    next_population.append((child1_opt, child1_score))
                     seen_candidates.add(child1_key)
-                child2, child2_score = local_opt(child2, sequence)
-                child2_key = tuple(child2)
-                if child2_key not in seen_candidates and not detect_lethal(child2):
-                    next_population.append((child2, child2_score))
+                child2_opt, child2_score = cached_local_opt(child2)
+                child2_key = tuple(child2_opt)
+                if child2_key not in seen_candidates and not detect_lethal(child2_opt):
+                    next_population.append((child2_opt, child2_score))
                     seen_candidates.add(child2_key)
 
         next_population = sorted(next_population, key=lambda x: x[1], reverse=True)

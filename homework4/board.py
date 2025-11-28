@@ -225,7 +225,7 @@ def max_block_size(flip_candidates):
         if a < flip_candidate.count():
             a = flip_candidate.count()
     return a
-
+'''
 flip_candidates = (
     [coords_to_bitarray([(i, j), (i+1, j), (i, j+1)])
      for i in range(3) for j in range(3)]
@@ -239,14 +239,21 @@ flip_candidates = (
     [coords_to_bitarray([(i+1, j), (i, j+1), (i+1, j+1)])
      for i in range(3) for j in range(3)]
 )
+'''
+flip_candidates = (
+    [coords_to_bitarray([(i, j), (i+1, j), (i+2, j)])
+     for i in range(2) for j in range(4)] +
+    [coords_to_bitarray([(i, j), (i, j+1), (i, j+2)])
+     for i in range(4) for j in range(2)]   
+)
 
 flip_candidates_max_block = max_block_size(flip_candidates)
 #flip_candidates_max_block = 1
 
 init_boards = [init_board1, init_board2, init_board3, init_board4]
 
-for i in range(4):  
-    search_num, path = DFS(init_boards[i], flip_candidates, symmetry=False)
+for i in range(len(init_boards)):  
+    search_num, path = admissible_A_star(init_boards[i], flip_candidates, flip_candidates_max_block, symmetry=False)
     print(f"Board {i+1}:")
     print(f"  探索数: {search_num}")
     if path is not None:

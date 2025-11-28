@@ -23,6 +23,14 @@ def _pos(candidate):
     
     return pos_list
 
+
+def pos(candidate):
+    """
+    Public wrapper so external modules (e.g., visualize scripts) can reuse the
+    lattice reconstruction while keeping internal name compatibility.
+    """
+    return _pos(candidate)
+
 def get_abcd_discrete(L):
     # 1. 区間の長さ w を決める
     # 長さ w (1からL-1まで) の「重み」は (L-w)^2
