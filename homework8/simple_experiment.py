@@ -1,8 +1,5 @@
 import numpy as np
-
-init_board_1_1 = ((2, 2), (3, 3))
-init_board_1_2 = ((3, 3), (4, 4))
-init_board_1_3 = ((3, 3), (5, 4))
+import time
 
 def piece_move_dict(piece, board_size):
     piece_move_list_dict = dict()
@@ -69,7 +66,8 @@ class Board():
                 if piece_pos is not None:
                     self.board[piece_pos] = VISITED
                 self.board[i] = PIECE
-                value = self.result(-current_state, alpha, beta)
+                next_state = current_state if piece_pos is None else -current_state
+                value = self.result(next_state, alpha, beta)
                 self.board[i] = UNVISITED
                 if piece_pos is not None:
                     self.board[piece_pos] = PIECE
@@ -82,7 +80,8 @@ class Board():
             current_value = float('inf')
             for i in piece_valid_move_candid:
                 self.board[i] = current_state
-                value = self.result(-current_state, alpha, beta)
+                next_state = current_state if piece_pos is None else -current_state
+                value = self.result(next_state, alpha, beta)
                 self.board[i] = 0
                 current_value = min(current_value, value)
                 beta = min(beta, current_value)
@@ -96,11 +95,52 @@ class Board():
             self.memo[memoise_key] = current_value
         return current_value
 
+    def winning_initial_positions(self):
+        """Return all starting squares (no pieces on board) where the first player wins.
+
+        We reuse the shared memo table. We temporarily clear the board to all
+        UNVISITED, place the piece on each cell, and evaluate keeping the same
+        player to move (placement does not swap turns). The board is restored
+        to its original contents after the search.
+        """
+        original_board = self.board.copy()
+        self.board[:] = UNVISITED
+
+        winning_cells = []
+        n = self.board_size[0]
+        k = (n + 1) // 2
+        for r in range(k):
+            for c in range(r, k):
+                if self.board[r, c] != UNVISITED:
+                    continue
+                self.board[r, c] = PIECE
+                result = self.result(current_state=1)
+                if result == 1:
+                    winning_cells.extend([
+                        (r, c),
+                        (r, n - 1 - c),
+                        (n - 1 - r, c),
+                        (n - 1 - r, n - 1 - c),
+                        (c, r),
+                        (n - 1 - c, r),
+                        (c, n - 1 - r),
+                        (n - 1 - c, n - 1 - r),
+                    ])
+                self.board[r, c] = UNVISITED
+
+        self.board[:, :] = original_board
+        winning_cells = sorted(set(winning_cells))
+        return winning_cells
+'''
 board = [[UNVISITED, UNVISITED, UNVISITED],
          [UNVISITED, UNVISITED, UNVISITED],
          [UNVISITED, UNVISITED, PIECE]]
-piece = 'KNIGHT'
-
+piece = 'KING'
+print(B0.result())
+'''
+time0 = time.time()
+board = [[UNVISITED for _ in range(4)] for _ in range(4)]
+piece = 'QUEEN'
 B0 = Board(board, piece)
-x = B0.result()
-print(x)
+print(B0.winning_initial_positions())
+print(time.time() - time0)
